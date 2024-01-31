@@ -17,12 +17,27 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     @IBOutlet weak var tableCategories: UITableView!
     
     var listCategories: [Category]!
+    var datos: ManagerUserDefault!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        datos = ManagerUserDefault()
+        cargarPreferencias()
         listCategories = []
         cargarCategorias()
+        
+    }
+    
+    func cargarPreferencias(){
+        let comida = datos.recuperar(clave: "RECETA")
+        let email = datos.recuperar(clave: "EMAIL")
+        
+        if email != "" && comida != "" {
+            let alert = UIAlertController(title: "PREFERENCIAS", message: "Email: \(email) Receta: \(comida)", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true, completion: nil)
+        }
         
     }
     

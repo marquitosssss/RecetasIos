@@ -8,6 +8,8 @@
 import UIKit
 import Alamofire
 import AlamofireImage
+import FirebaseAuth
+import FirebaseFirestore
 
 class RecetaViewController: UIViewController {
     
@@ -25,9 +27,14 @@ class RecetaViewController: UIViewController {
     var id: String!
     var receta:Meal!
     
+    var bd: Firestore!
+    var datos: ManagerUserDefault!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        
+        datos = ManagerUserDefault()
         cargarReceta()
 
     }
@@ -57,6 +64,33 @@ class RecetaViewController: UIViewController {
     }
 
     @IBAction func btnGuardar(_ sender: Any) {
+        if let user = Auth.auth().currentUser {
+            // SI ESTÁ LOGEADO
+            bd = Firestore.firestore()
+            bd.collection("recetas").document(user.uid).collection("favoritas").document(receta.idMeal).setData([
+                "comida": receta.strMeal,
+                "categoría": receta.strCategory,
+                "area": lbArea.text!,
+                "instrucciones": lbInstrucciones.text!
+            ])
+            datos.guardar(dato: user.email!, clave: "EMAIL")
+            datos.guardar(dato: receta.strMeal, clave: "RECETA")
+            
+        }else{
+            // NO ESTÁ LOGEADO
+            let ventana = self.storyboard?.instantiateViewController(identifier: "LOGIN") as! LoginViewController
+            self.navigationController?.pushViewController(ventana, animated: true)
+        }
+    }
+    
+    
+    @IBAction func btnLogOut(_ sender: Any) {
+        do{
+           try Auth.auth().signOut()
+        }catch{
+            print("ERROR POR CACAS")
+        }
+        
     }
     
 
